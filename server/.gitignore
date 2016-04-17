@@ -1,0 +1,15 @@
+/ChannelManager.class
+/Chat4Server.class
+/JoinChannel.class
+/ListChannelHandler.class
+/PrivateMessageHandler.class
+/Server4Console.class
+/ServerLoginHandler.class
+/ServerMessageHandler.class
+/ServerNonLoginHandler.class
+/ServerStringMessageHandler.class
+/UserListChannelHandler.class
+/WhoBlocksMeHandler.class
+/WhoIBlockHandler.class
+/blockingHandler.class
+/unblockingHandler.class
