@@ -101,10 +101,18 @@ public class Client4GUI extends JPanel implements ActionListener, ChatIF, Observ
     
     // just displaying new options
     private void updateChannelList(){
+    	display("updateChannelList called");
     	
     	channelComboBox.removeAllItems();
     	
     	System.out.println("channels null? " + dataItems.get("channels"));
+    	
+//    	channelComboBox.addActionListener(new ActionListener(){
+//			public void actionPerformed(ActionEvent e) {
+//				//display(((JComboBox)e.getSource()).getSelectedItem().toString());
+//				setUsersChannel( ((JComboBox)e.getSource()).getSelectedItem().toString() );
+//			}
+//        });
     	
         for (String channelName : dataItems.get("channels")){
         	channelComboBox.addItem(channelName);
@@ -118,13 +126,16 @@ public class Client4GUI extends JPanel implements ActionListener, ChatIF, Observ
     	
     	add(channelComboBox, c);
     	
-    	client.handleMessageFromClientUI("#list");
-    	//client.handleMessageFromClientUI("#join global");
+    	//client.handleMessageFromClientUI("#list");
+    	client.handleMessageFromClientUI("#join global");
     	            	
         channelComboBox.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-				//System.out.println(((JComboBox)e.getSource()).getSelectedItem().toString());
-				setUsersChannel( ((JComboBox)e.getSource()).getSelectedItem().toString() );
+				display(((JComboBox)e.getSource()).getSelectedItem().toString());
+								
+//				if (((JComboBox)e.getSource()).getSelectedItem() != null){
+//					setUsersChannel( "global" );
+//				}	
 			}
         });
 	}
@@ -159,35 +170,38 @@ public class Client4GUI extends JPanel implements ActionListener, ChatIF, Observ
       // Abstract class for generalized Data String
       // Sub classes for ChannelListString, and UserListString
     	
+      // #list
       if (msg instanceof DataString){
     	      	  
-    	  String[] splitString = ((DataString) msg).getValue().split(" ");
-    	  String key = splitString[0];
-    	      	  
-    	  List<String> values = Arrays.asList(splitString).subList(1, splitString.length);
-
-    	  dataItems.put(key, values);
-    	  //System.out.println(dataItems.get(key));
-
-    	  
-    	  //System.out.println("updateChannelList called from update");
-    	  updateChannelList();
+//    	  String[] splitString = ((DataString) msg).getValue().split(" ");
+//    	  String key = splitString[0];
+//    	      	  
+//    	  List<String> values = Arrays.asList(splitString).subList(1, splitString.length);
+//
+//    	  dataItems.put(key, values);
+//    	  //System.out.println(dataItems.get(key));
+//
+//    	  //System.out.println("updateChannelList called from update");
+//    	  updateChannelList();
+    	
+      // whenever ANYONE does #join
       } else if (msg instanceof UpdateGUIString){
+    	  
+    	  display("received an UpdateGUIString object");
     	  
     	  String[] splitString = ((UpdateGUIString) msg).getValue().split(" ");
     	  String key = splitString[0];
-    	      	  
+
     	  List<String> values = Arrays.asList(splitString).subList(1, splitString.length);
 
     	  dataItems.put(key, values);
     	  updateChannelList();
-    	  
-    	  System.out.println("data items about to update the gui " + dataItems.get(key));
     	  
       } else if(msg instanceof String){
     	  display((String)msg);
       } else if(msg instanceof Exception){
-    	  display("Connection exception " + (Exception)msg);  
+    	  //display("Connection exception " + (Exception)msg);
+    	  System.out.println("Connection exception " + (Exception)msg);
       }
     }
     
