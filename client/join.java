@@ -19,8 +19,8 @@ public class join extends ClientCommand
   {
     try
     {
-    String handlerMessage = "JoinChannel " + getStr();
-    getClient().OC().sendToServer(handlerMessage);
+    	String handlerMessage = "JoinChannel " + getStr();
+    	getClient().OC().sendToServer(handlerMessage);
     }
     catch(IOException ex)
     {

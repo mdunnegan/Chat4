@@ -5,19 +5,33 @@ package client;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Set;
 
 import javax.swing.*;
 
 import ocsf.client.ObservableClient;
 import common.ChatIF;
+import common.DataString;
+import common.UpdateGUIString;
+import javafx.util.Pair;
 
 public class Client4GUI extends JPanel implements ActionListener, ChatIF, Observer {
 
 	protected JTextField textField;
     protected JTextArea textArea;
     private final static String newline = "\n";
+    //private ArrayList<String> channelNames;
+    private HashMap<String, List<String>> dataItems;
+    private GridBagConstraints c;
+    private JComboBox channelComboBox;
     
     /**
      * The default port to connect on.
@@ -31,7 +45,15 @@ public class Client4GUI extends JPanel implements ActionListener, ChatIF, Observ
 
     public Client4GUI(String host, int port, String id, String password) {
         super(new GridBagLayout());
-
+        
+        dataItems = new HashMap<String, List<String>>();
+        
+        // make buttons for blocking and channels
+        
+        //JButton listChannelsButton = new JButton("Channels");
+        
+        //String[] fakeChannels = new String[]{"Test"};
+        
         textField = new JTextField(20);
         
         // 'this' (Client4GUI) must implement ActionListener
@@ -40,10 +62,9 @@ public class Client4GUI extends JPanel implements ActionListener, ChatIF, Observ
         // or
         // Client4GUI listens for text field
         
-        
         // Simple way to understand: 
         // Because of this line,
-        // when textField is activated, actionPerformed will be called
+        // when textField is activated (enter pressed), actionPerformed will be called
         textField.addActionListener(this);
 
         textArea = new JTextArea(5, 20);
@@ -51,7 +72,7 @@ public class Client4GUI extends JPanel implements ActionListener, ChatIF, Observ
         JScrollPane scrollPane = new JScrollPane(textArea);
 
         //Add Components to this panel.
-        GridBagConstraints c = new GridBagConstraints();
+        c = new GridBagConstraints();
         c.gridwidth = GridBagConstraints.REMAINDER;
 
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -74,9 +95,46 @@ public class Client4GUI extends JPanel implements ActionListener, ChatIF, Observ
         // When the observable client instance calls notifyObservers(), 
         // this object's update() method will be called
         client.OC().addObserver(this);
+        
+        setupChannelList();
+    }
+    
+    // just displaying new options
+    private void updateChannelList(){
+    	
+    	channelComboBox.removeAllItems();
+    	
+    	System.out.println("channels null? " + dataItems.get("channels"));
+    	
+        for (String channelName : dataItems.get("channels")){
+        	channelComboBox.addItem(channelName);
+        }
+        add(channelComboBox, c);
     }
 
-    // gets called every time enter is pressed in the text box
+    private void setupChannelList() {
+    	
+    	channelComboBox = new JComboBox();
+    	
+    	add(channelComboBox, c);
+    	
+    	client.handleMessageFromClientUI("#list");
+    	//client.handleMessageFromClientUI("#join global");
+    	            	
+        channelComboBox.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				//System.out.println(((JComboBox)e.getSource()).getSelectedItem().toString());
+				setUsersChannel( ((JComboBox)e.getSource()).getSelectedItem().toString() );
+			}
+        });
+	}
+    
+    private void setUsersChannel(String channelSelection) {
+    	//display("about to send a join command");
+    	client.handleMessageFromClientUI("#join " + channelSelection);
+	}
+
+	// gets called every time enter is pressed in the text box
     public void actionPerformed(ActionEvent evt) {
         String message = textField.getText(); 
         
@@ -94,10 +152,43 @@ public class Client4GUI extends JPanel implements ActionListener, ChatIF, Observ
     // (See end of this class's constructor)
     public void update(Observable OC, Object msg)
     {
-      if(msg instanceof String)
-      	display((String)msg);
-      else if(msg instanceof Exception)
-      	display("Connection exception " + (Exception)msg);
+    	
+      //System.out.println("MSGCLASS: " + msg.getClass().toString());
+      //System.out.println("MSG: " + msg.toString());
+    	
+      // Abstract class for generalized Data String
+      // Sub classes for ChannelListString, and UserListString
+    	
+      if (msg instanceof DataString){
+    	      	  
+    	  String[] splitString = ((DataString) msg).getValue().split(" ");
+    	  String key = splitString[0];
+    	      	  
+    	  List<String> values = Arrays.asList(splitString).subList(1, splitString.length);
+
+    	  dataItems.put(key, values);
+    	  //System.out.println(dataItems.get(key));
+
+    	  
+    	  //System.out.println("updateChannelList called from update");
+    	  updateChannelList();
+      } else if (msg instanceof UpdateGUIString){
+    	  
+    	  String[] splitString = ((UpdateGUIString) msg).getValue().split(" ");
+    	  String key = splitString[0];
+    	      	  
+    	  List<String> values = Arrays.asList(splitString).subList(1, splitString.length);
+
+    	  dataItems.put(key, values);
+    	  updateChannelList();
+    	  
+    	  System.out.println("data items about to update the gui " + dataItems.get(key));
+    	  
+      } else if(msg instanceof String){
+    	  display((String)msg);
+      } else if(msg instanceof Exception){
+    	  display("Connection exception " + (Exception)msg);  
+      }
     }
     
     public void display(String message)
@@ -114,10 +205,6 @@ public class Client4GUI extends JPanel implements ActionListener, ChatIF, Observ
      * event dispatch thread.
      */
     private static void createAndShowGUI(String host, int port) {
-    	
-//    	String id = JOptionPane.showInputDialog("Username: ");
-//    	String password = JOptionPane.showInputDialog("Password: ");
-
     	
     	JTextField usernameField = new JTextField(5);
         JTextField passwordField = new JTextField(5);
@@ -139,13 +226,14 @@ public class Client4GUI extends JPanel implements ActionListener, ChatIF, Observ
         f.pack();
         f.setVisible(true);
         
+        JFrame guiFrame = new JFrame();
+        
         submitButton.addActionListener(new ActionListener(){
         	@Override
             public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
                 String password = passwordField.getText(); 
                 
-                JFrame guiFrame = new JFrame();
                 guiFrame.add(new Client4GUI(host, port, username, password));
             	f.dispose(); 
             	guiFrame.pack();

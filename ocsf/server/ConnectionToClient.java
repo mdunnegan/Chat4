@@ -156,7 +156,6 @@ public class ConnectionToClient extends Thread
   {
     if (clientSocket == null || output == null)
       throw new SocketException("socket does not exist");
-
     output.writeObject(msg);
   }
 

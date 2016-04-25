@@ -13,3 +13,7 @@
 /WhoIBlockHandler.class
 /blockingHandler.class
 /unblockingHandler.class
+/ServerMessageHandler$DataString.class
+/DataString.class
+/ChannelManager.class
+/Chat4Server.class

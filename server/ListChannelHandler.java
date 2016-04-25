@@ -4,7 +4,13 @@ import server.*;
 import ocsf.server.*;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
+
+import common.DataString;
+import javafx.util.Pair;
 
 public class ListChannelHandler extends ServerNonLoginHandler{
 /**
@@ -23,11 +29,20 @@ public class ListChannelHandler extends ServerNonLoginHandler{
   {
     try
     {
+      //ArrayList<String> channelNameSet = (ArrayList<String>) getServer().getChannelManager().getChannelNames();
+      
+      //getClient().sendToClient(channelNameSet);
+    	      
       Set<String> channelNameSet = getServer().getChannelManager().getChannelNames();
+      String toSend = "channels ";
+      
       for (String channelName : channelNameSet)
       {
-        getClient().sendToClient(channelName);// send each to client
+        //getClient().sendToClient(channelName);// send each to client
+    	toSend += channelName + " ";
       }
+      getClient().sendToClient(new DataString(toSend));
+      
     }
     catch(IOException e)
     {

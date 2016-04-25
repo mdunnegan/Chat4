@@ -4,6 +4,11 @@ import server.*;
 import ocsf.server.*;
 
 import java.io.*;
+import java.util.Arrays;
+import java.util.Set;
+
+import common.DataString;
+import common.UpdateGUIString;
 
   /**
    *  This class defines a message handler to  allow the user to switch channels
@@ -29,11 +34,24 @@ import java.io.*;
     public void handleMess()
     {
       removeUserFromCurrentChannel();
-      createNewChannelIfNeeded();
+      createNewChannelIfNeededAndUpdateAllGUIS();      
       addUserToChannel();
     }
 
-    /**
+    private void updateAllGuis() {
+    	    	    	
+    	Set<String> channelNameSet = getServer().getChannelManager().getChannelNames();
+    	String channelNames = "channels ";
+    	for (String s : channelNameSet){
+    		channelNames += s + " ";
+    	}
+    	
+    	System.out.println("channelNames string: " + channelNames);
+    	
+    	getServer().sendToAllClients(new UpdateGUIString(channelNames));
+	}
+
+	/**
      * remove user from current channel and erase that channel if it becomes empty
      */
     private void removeUserFromCurrentChannel()
@@ -51,7 +69,7 @@ import java.io.*;
     /**
      * create a new channel if none by the given name exists
      */
-    private void createNewChannelIfNeeded()
+    private void createNewChannelIfNeededAndUpdateAllGUIS()
     {
       if(!getServer().getChannelManager().channelExists(channelName))
       {
@@ -59,6 +77,7 @@ import java.io.*;
         try
         {
           getClient().sendToClient("you have created the channel " + channelName);
+          updateAllGuis();
         }
         catch (IOException e)
         {

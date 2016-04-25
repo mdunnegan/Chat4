@@ -27,6 +27,9 @@ public class ServerLoginHandler extends ServerMessageHandler
    */
   public void handleMessage()
   {
+	  
+	System.out.println("login handler happening");
+	  
 // myServer.getConsole().display("start handleMessage in ServerLoginhandler");
 	if(getClient().getInfo("id") != null)
     {
@@ -47,11 +50,14 @@ public class ServerLoginHandler extends ServerMessageHandler
 //  myServer.getConsole().display("try split id-password.length: " + idPassword.length);
     	if(idPassword.length != 2)
         {
+    	  System.out.println("1");
+    		
           getClient().sendToClient("Invalid input, sorry.  Please log in with valid input.");
           getClient().close();
         }
     	else if(getServer().getPasswordManager().validID(idPassword[0]))
         {
+    		System.out.println("2");
 // myServer.getConsole().display("acount " + idPassword[0] + " " + idPassword[1] + " exists");
     	  if(getServer().getPasswordManager().validatePassword(idPassword[0],idPassword[1]))
           {
@@ -65,6 +71,7 @@ public class ServerLoginHandler extends ServerMessageHandler
         }
         else // not logged in, add id-password pair
         {
+          System.out.println("3");
 // myServer.getConsole().display("acount " + idPassword[0] + " " + idPassword[1] + " creation");
           getServer().getPasswordManager().addIDPasswordPair(idPassword[0], idPassword[1]);
 // myServer.getConsole().display("id password pair added");

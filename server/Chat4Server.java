@@ -102,6 +102,7 @@ public class Chat4Server extends AbstractServer
       @SuppressWarnings("rawtypes")
 	  Class[] param = {String.class, Chat4Server.class, ConnectionToClient.class};
       ServerMessageHandler handler = (ServerMessageHandler)Class.forName(handlerStr).getConstructor(param).newInstance(message, this, client);
+      //System.out.println("Error is in handler.handleMessage()");
       handler.handleMessage();
     }
     catch(Exception ex)
@@ -218,7 +219,7 @@ public class Chat4Server extends AbstractServer
     getConsole().display(message);
     sendToAllClients("SERVER MSG> " + message);
   }
-
+  
   //this sends to all clients in a given channel
   public void sendToAllClients(String msg, String channel, String sender)
   {
