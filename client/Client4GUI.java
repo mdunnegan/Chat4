@@ -101,41 +101,37 @@ public class Client4GUI extends JPanel implements ActionListener, ChatIF, Observ
     
     // just displaying new options
     private void updateChannelList(){
-    	display("updateChannelList called");
     	
-    	channelComboBox.removeAllItems();
+    	String selectedItem = (String) channelComboBox.getSelectedItem();
     	
-    	System.out.println("channels null? " + dataItems.get("channels"));
-    	
-//    	channelComboBox.addActionListener(new ActionListener(){
-//			public void actionPerformed(ActionEvent e) {
-//				//display(((JComboBox)e.getSource()).getSelectedItem().toString());
-//				setUsersChannel( ((JComboBox)e.getSource()).getSelectedItem().toString() );
-//			}
-//        });
-    	
-        for (String channelName : dataItems.get("channels")){
+    	outerloop:
+		for (String channelName : (List<String>)dataItems.get("channels")){        	
+        	for (int i = 0; i < channelComboBox.getItemCount(); i++){
+        		if (channelComboBox.getItemAt(i).equals(channelName)){
+        			continue outerloop;
+        		}
+        	}
         	channelComboBox.addItem(channelName);
         }
-        add(channelComboBox, c);
+    
+        add(channelComboBox, c);        
     }
 
     private void setupChannelList() {
     	
     	channelComboBox = new JComboBox();
     	
+    	channelComboBox.setEditable(true);
+    	
     	add(channelComboBox, c);
     	
-    	//client.handleMessageFromClientUI("#list");
     	client.handleMessageFromClientUI("#join global");
     	            	
         channelComboBox.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				display(((JComboBox)e.getSource()).getSelectedItem().toString());
-								
-//				if (((JComboBox)e.getSource()).getSelectedItem() != null){
-//					setUsersChannel( "global" );
-//				}	
+			public void actionPerformed(ActionEvent e) {				
+				if (((JComboBox)e.getSource()).getSelectedItem() != null){
+					setUsersChannel(((JComboBox)e.getSource()).getSelectedItem().toString());
+				}
 			}
         });
 	}
@@ -164,13 +160,7 @@ public class Client4GUI extends JPanel implements ActionListener, ChatIF, Observ
     public void update(Observable OC, Object msg)
     {
     	
-      //System.out.println("MSGCLASS: " + msg.getClass().toString());
-      //System.out.println("MSG: " + msg.toString());
-    	
-      // Abstract class for generalized Data String
-      // Sub classes for ChannelListString, and UserListString
-    	
-      // #list
+      // #list, doesn't get sent...
       if (msg instanceof DataString){
     	      	  
 //    	  String[] splitString = ((DataString) msg).getValue().split(" ");
@@ -187,7 +177,7 @@ public class Client4GUI extends JPanel implements ActionListener, ChatIF, Observ
       // whenever ANYONE does #join
       } else if (msg instanceof UpdateGUIString){
     	  
-    	  display("received an UpdateGUIString object");
+    	  //display("***received an UpdateGUIString object***");
     	  
     	  String[] splitString = ((UpdateGUIString) msg).getValue().split(" ");
     	  String key = splitString[0];
@@ -195,13 +185,14 @@ public class Client4GUI extends JPanel implements ActionListener, ChatIF, Observ
     	  List<String> values = Arrays.asList(splitString).subList(1, splitString.length);
 
     	  dataItems.put(key, values);
+    	  //display("resulting items..." + dataItems.get(key));
     	  updateChannelList();
     	  
       } else if(msg instanceof String){
     	  display((String)msg);
       } else if(msg instanceof Exception){
     	  //display("Connection exception " + (Exception)msg);
-    	  System.out.println("Connection exception " + (Exception)msg);
+    	  System.out.println("Connection exception?? " + (Exception)msg);
       }
     }
     

@@ -34,8 +34,10 @@ import common.UpdateGUIString;
     public void handleMess()
     {
       removeUserFromCurrentChannel();
-      createNewChannelIfNeededAndUpdateAllGUIS();      
+      createNewChannelIfNeededAndUpdateAllGUIS();
+      
       addUserToChannel();
+      updateAllGuis();
     }
 
     private void updateAllGuis() {
@@ -74,16 +76,17 @@ import common.UpdateGUIString;
       if(!getServer().getChannelManager().channelExists(channelName))
       {
         getServer().getChannelManager().createChannel(channelName);
-        try
-        {
-          getClient().sendToClient("you have created the channel " + channelName);
-          updateAllGuis();
-        }
-        catch (IOException e)
-        {
-          getServer().getConsole().display(e + "\nAn error has occured when sending channel create message to client");
-        }
+//        try
+//        {
+//          getClient().sendToClient("you have created the channel " + channelName);
+//          updateAllGuis();
+//        }
+//        catch (IOException e)
+//        {
+//          getServer().getConsole().display(e + "\nAn error has occured when sending channel create message to client");
+//        }
       }
+     
     }
 
     /**
