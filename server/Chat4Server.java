@@ -5,6 +5,7 @@ import java.io.*;
 import ocsf.server.*;
 import server.command.*;
 import common.ChatIF;
+import common.LineDrawString;
 import password.*;
 
 import java.util.HashSet;
@@ -221,12 +222,32 @@ public class Chat4Server extends AbstractServer
   }
   
   //this sends to all clients in a given channel
-  public void sendToAllClients(String msg, String channel, String sender)
+  public void sendToAllClients(Object msg, String channel, String sender)
   {
     Thread[] clientThreadList = getClientConnections();
     String name;
     String id;
     HashSet<String> blocked;
+    
+    if (msg instanceof LineDrawString){
+    	
+    	for (int i=0; i<clientThreadList.length; i++)
+        {
+          try
+          {
+            name =(String) ((ConnectionToClient)clientThreadList[i]).getInfo("channel");
+            id =(String) ((ConnectionToClient)clientThreadList[i]).getInfo("id");
+            blocked = (HashSet<String>) ((ConnectionToClient)clientThreadList[i]).getInfo("iblock");
+            if (name.equals(channel) && !blocked.contains(sender)){
+              ((ConnectionToClient)clientThreadList[i]).sendToClient(msg);
+            }
+          }
+          catch (Exception ex) {}
+        }
+    	
+    	return;
+    }
+    
     for (int i=0; i<clientThreadList.length; i++)
     {
       try
@@ -235,7 +256,7 @@ public class Chat4Server extends AbstractServer
         id =(String) ((ConnectionToClient)clientThreadList[i]).getInfo("id");
         blocked = (HashSet<String>) ((ConnectionToClient)clientThreadList[i]).getInfo("iblock");
         if (name.equals(channel) && !blocked.contains(sender)){
-          ((ConnectionToClient)clientThreadList[i]).sendToClient(id + ">" + msg);
+          ((ConnectionToClient)clientThreadList[i]).sendToClient(id + ">" + msg.toString());
         }
       }
       catch (Exception ex) {}

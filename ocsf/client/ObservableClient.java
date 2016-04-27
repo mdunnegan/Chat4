@@ -141,7 +141,7 @@ public class ObservableClient extends Observable
   protected void handleMessageFromServer(Object message)
   {
     setChanged();
-    notifyObservers(message);
+    notifyObservers(message); // since ODP is an observer...it should change...
   }
 
   /**

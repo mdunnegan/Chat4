@@ -20,8 +20,12 @@ import javax.swing.*;
 import ocsf.client.ObservableClient;
 import common.ChatIF;
 import common.DataString;
+import common.LineDrawString;
 import common.UpdateGUIString;
 import javafx.util.Pair;
+
+import drawpad.*;
+import drawpadStarter.*;
 
 public class Client4GUI extends JPanel implements ActionListener, ChatIF, Observer {
 
@@ -32,6 +36,9 @@ public class Client4GUI extends JPanel implements ActionListener, ChatIF, Observ
     private HashMap<String, List<String>> dataItems;
     private GridBagConstraints c;
     private JComboBox channelComboBox;
+    
+    private OpenDrawPad odp;
+    private StartDraw sd;
     
     /**
      * The default port to connect on.
@@ -48,23 +55,7 @@ public class Client4GUI extends JPanel implements ActionListener, ChatIF, Observ
         
         dataItems = new HashMap<String, List<String>>();
         
-        // make buttons for blocking and channels
-        
-        //JButton listChannelsButton = new JButton("Channels");
-        
-        //String[] fakeChannels = new String[]{"Test"};
-        
         textField = new JTextField(20);
-        
-        // 'this' (Client4GUI) must implement ActionListener
-        // text field listens for Client4GUI (this one) - thus, once enter is pressed in the text field (GUI?),
-        //												  actionPerformed is called
-        // or
-        // Client4GUI listens for text field
-        
-        // Simple way to understand: 
-        // Because of this line,
-        // when textField is activated (enter pressed), actionPerformed will be called
         textField.addActionListener(this);
 
         textArea = new JTextArea(5, 20);
@@ -95,11 +86,16 @@ public class Client4GUI extends JPanel implements ActionListener, ChatIF, Observ
         // When the observable client instance calls notifyObservers(), 
         // this object's update() method will be called
         client.OC().addObserver(this);
-        
+
+        // create the drawpad, make it observe the observable client
+        StartDraw start = new StartDraw(client);
+        odp = new OpenDrawPad(start, start);
+        client.OC().addObserver(odp);
+
         setupChannelList();
     }
-    
-    // just displaying new options
+
+	// just displaying new options
     private void updateChannelList(){
     	
     	String selectedItem = (String) channelComboBox.getSelectedItem();
@@ -160,32 +156,14 @@ public class Client4GUI extends JPanel implements ActionListener, ChatIF, Observ
     public void update(Observable OC, Object msg)
     {
     	
-      // #list, doesn't get sent...
-      if (msg instanceof DataString){
+      if (msg instanceof UpdateGUIString){
     	      	  
-//    	  String[] splitString = ((DataString) msg).getValue().split(" ");
-//    	  String key = splitString[0];
-//    	      	  
-//    	  List<String> values = Arrays.asList(splitString).subList(1, splitString.length);
-//
-//    	  dataItems.put(key, values);
-//    	  //System.out.println(dataItems.get(key));
-//
-//    	  //System.out.println("updateChannelList called from update");
-//    	  updateChannelList();
-    	
-      // whenever ANYONE does #join
-      } else if (msg instanceof UpdateGUIString){
-    	  
-    	  //display("***received an UpdateGUIString object***");
-    	  
     	  String[] splitString = ((UpdateGUIString) msg).getValue().split(" ");
     	  String key = splitString[0];
 
     	  List<String> values = Arrays.asList(splitString).subList(1, splitString.length);
 
     	  dataItems.put(key, values);
-    	  //display("resulting items..." + dataItems.get(key));
     	  updateChannelList();
     	  
       } else if(msg instanceof String){
